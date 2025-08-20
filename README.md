@@ -47,3 +47,18 @@ ServiceTrack.Frontend/
     ├── team.html
     ├── reports.html
     └── settings.html
+
+
+🛠️ Instalación y uso
+
+Clonar el repositorio:
+git clone https://github.com/tuusuario/ServiceTrack.Frontend.git
+Abrir index.html en tu navegador.
+Navegar entre las secciones usando el sidebar.
+
+📌 Roadmap
+* Mejorar Kanban con drag & drop real.
+* Conexión con API en .NET (Capa de Negocio).
+* Autenticación JWT + Google OAuth.
+* Exportar reportes (PDF, Excel).
+* Deploy con Docker + Nginx.
