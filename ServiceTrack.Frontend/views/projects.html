@@ -1,0 +1,44 @@
+<!-- === PROJECTS VIEW === -->
+<div class="row mb-4">
+  <div class="col-12 d-flex justify-content-between align-items-center">
+    <h2>Gestión de Proyectos</h2>
+    <button class="btn btn-primary" onclick="/* showCreateProjectModal(); */">
+      <i class="bi bi-plus"></i> Nuevo Proyecto
+    </button>
+  </div>
+</div>
+
+<!-- Filtros de proyectos -->
+<div class="row mb-4">
+  <div class="col-md-4">
+    <input type="text" class="form-control" placeholder="Buscar proyectos..." id="projectSearch">
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" id="projectStatusFilter">
+      <option value="">Todos los estados</option>
+      <option value="active">Activo</option>
+      <option value="completed">Completado</option>
+      <option value="paused">Pausado</option>
+    </select>
+  </div>
+  <div class="col-md-3">
+    <select class="form-select" id="projectPriorityFilter">
+      <option value="">Todas las prioridades</option>
+      <option value="high">Alta</option>
+      <option value="medium">Media</option>
+      <option value="low">Baja</option>
+    </select>
+  </div>
+  <div class="col-md-2">
+    <button class="btn btn-outline-primary w-100" onclick="/* applyProjectFilters(); */">
+      <i class="bi bi-funnel"></i> Filtrar
+    </button>
+  </div>
+</div>
+
+<!-- Lista de proyectos -->
+<div class="row" id="projects-list"></div>
+<script>
+  // Hook inline para asegurar que initProjects se ejecute al insertar esta vista
+  if (typeof initProjects === 'function') initProjects();
+</script>

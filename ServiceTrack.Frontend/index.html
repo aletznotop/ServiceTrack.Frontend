@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TaskFlow Manager - Dashboard</title>
+
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Bootstrap Icons -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet" />
+  <!-- SweetAlert2 CSS (para estilos por defecto del modal) -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/limonte-sweetalert2/11.7.0/sweetalert2.min.css" rel="stylesheet" />
+
+  <!-- App CSS -->
+  <link href="./assets/css/theme.css" rel="stylesheet" />
+  <link href="./assets/css/style.css" rel="stylesheet" />
+</head>
+<body>
+  <!-- === SIDEBAR NAVIGATION === -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <h4><i class="bi bi-kanban"></i> TaskFlow</h4>
+      <small class="text-light opacity-75">Manager v1.0</small>
+    </div>
+
+    <ul class="nav flex-column nav-menu">
+      <li class="nav-item">
+        <a class="nav-link active" href="#dashboard" data-section="dashboard">
+          <i class="bi bi-house-door"></i>Dashboard
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#projects" data-section="projects">
+          <i class="bi bi-folder"></i>Proyectos
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#tasks" data-section="tasks">
+          <i class="bi bi-check-square"></i>Tareas
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#team" data-section="team">
+          <i class="bi bi-people"></i>Equipo
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#reports" data-section="reports">
+          <i class="bi bi-graph-up"></i>Reportes
+        </a>
+      </li>
+      <li class="nav-item">
+        <hr class="text-light opacity-25 my-3" />
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#settings" data-section="settings">
+          <i class="bi bi-gear"></i>Configuración
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" onclick="logout()">
+          <i class="bi bi-box-arrow-right"></i>Cerrar Sesión
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <!-- === MAIN CONTENT === -->
+  <main class="main-content">
+    <!-- Top Navigation -->
+    <nav class="navbar navbar-expand-lg top-nav">
+      <div class="container-fluid">
+        <!-- Mobile menu toggle -->
+        <button class="btn btn-outline-primary d-lg-none" id="sidebarToggle">
+          <i class="bi bi-list"></i>
+        </button>
+
+        <span class="navbar-brand mb-0 h1">Begining</span>
+
+        <!-- User Menu -->
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle"></i> Alejandro Cancino
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Mi Perfil</a></li>
+            <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Configuración</a></li>
+            <li><hr class="dropdown-divider" /></li>
+            <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-fluid p-4" id="dashboard-content">
+      <!-- Aquí se cargará dinámicamente la vista seleccionada desde /views -->
+    </div>
+  </main>
+
+  <!-- Vendor JS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.0/sweetalert2.min.js"></script>
+
+  <!-- App JS -->
+  <script src="./assets/js/app.js"></script>
+  <script src="./assets/js/api.js"></script>
+  <script src="./assets/js/auth.js"></script>
+  <script src="./assets/js/navigation.js"></script>
+  <script src="./assets/js/dashboard.js"></script>
+  <script src="./assets/js/projects.js"></script>
+  <script src="./assets/js/tasks.js"></script>
+  <script src="./assets/js/team.js"></script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+/* === THEME VARIABLES & GLOBAL TOKENS ===
+   Mantén aquí colores y decisiones de diseño reutilizables.
+   Cambia estos valores para generar un tema distinto sin tocar estilos específicos.
+*/
+:root {
+  --primary-color: #2563eb;
+  --secondary-color: #64748b;
+  --success-color: #059669;
+  --warning-color: #d97706;
+  --danger-color: #dc2626;
+  --sidebar-width: 250px;
+}
+
+/* Tipografía y fondo global */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f8fafc;
+}

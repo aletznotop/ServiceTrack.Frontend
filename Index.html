@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaskFlow Manager - Dashboard</title>
+    
+    <!-- Bootstrap 5.3 CSS -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.7.0/sweetalert2.min.js"></script>
+    
+    <style>
+        /* === ESTILOS PERSONALIZADOS === */
+        
+        /* Variables CSS para tema consistente */
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #64748b;
+            --success-color: #059669;
+            --warning-color: #d97706;
+            --danger-color: #dc2626;
+            --sidebar-width: 250px;
+        }
+        
+        /* Layout principal */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        /* Sidebar Navigation */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .sidebar-header h4 {
+            color: white;
+            margin: 0;
+            font-weight: 600;
+        }
+        
+        .nav-menu {
+            padding: 1rem 0;
+        }
+        
+        .nav-item {
+            margin: 0.25rem 0;
+        }
+        
+        .nav-link {
+            color: rgba(255,255,255,0.8) !important;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-link:hover, .nav-link.active {
+            color: white !important;
+            background: rgba(255,255,255,0.1);
+            border-left-color: white;
+        }
+        
+        .nav-link i {
+            margin-right: 0.75rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        /* Main Content Area */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+        }
+        
+        /* Top Navigation */
+        .top-nav {
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+        }
+        
+        .navbar-brand {
+            font-weight: 600;
+        }
+        
+        /* Dashboard Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .stat-icon.primary { background: var(--primary-color); }
+        .stat-icon.success { background: var(--success-color); }
+        .stat-icon.warning { background: var(--warning-color); }
+        .stat-icon.danger { background: var(--danger-color); }
+        
+        /* Task Cards */
+        .task-card {
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.2s ease;
+        }
+        
+        .task-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            border-color: var(--primary-color);
+        }
+        
+        .task-priority {
+            width: 4px;
+            border-radius: 2px;
+        }
+        
+        .priority-high { background: var(--danger-color); }
+        .priority-medium { background: var(--warning-color); }
+        .priority-low { background: var(--success-color); }
+        
+        /* Status Badges */
+        .status-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- === SIDEBAR NAVIGATION === -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="bi bi-kanban"></i> TaskFlow</h4>
+            <small class="text-light opacity-75">Manager v1.0</small>
+        </div>
+        
+        <ul class="nav flex-column nav-menu">
+            <li class="nav-item">
+                <a class="nav-link active" href="#dashboard" data-section="dashboard">
+                    <i class="bi bi-house-door"></i>Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#projects" data-section="projects">
+                    <i class="bi bi-folder"></i>Proyectos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#tasks" data-section="tasks">
+                    <i class="bi bi-check-square"></i>Tareas
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#team" data-section="team">
+                    <i class="bi bi-people"></i>Equipo
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#reports" data-section="reports">
+                    <i class="bi bi-graph-up"></i>Reportes
+                </a>
+            </li>
+            <li class="nav-item">
+                <hr class="text-light opacity-25 my-3">
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#settings" data-section="settings">
+                    <i class="bi bi-gear"></i>Configuración
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" onclick="logout()">
+                    <i class="bi bi-box-arrow-right"></i>Cerrar Sesión
+                </a>
+            </li>
+        </ul>
+    </nav>
+    
+    <!-- === MAIN CONTENT === -->
+    <main class="main-content">
+        <!-- Top Navigation -->
+        <nav class="navbar navbar-expand-lg top-nav">
+            <div class="container-fluid">
+                <!-- Mobile menu toggle -->
+                <button class="btn btn-outline-primary d-lg-none" id="sidebarToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                
+                <span class="navbar-brand mb-0 h1">Begining</span>
+                
+                <!-- User Menu -->
+                <div class="dropdown">
+                    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-person-circle"></i> Alejandro Cancino
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Mi Perfil</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> Configuración</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" onclick="logout()"><i class="bi bi-box-arrow-right"></i> Cerrar Sesión</a></li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+        
+        <!-- Dashboard Content -->
+        <div class="container-fluid p-4" id="dashboard-content">
+            <!-- Welcome Section -->
+            <div class="row mb-4">
+                <div class="col-12">
+                    <h2 class="mb-1" runat="server">¡Bienvenido de vuelta, Alejandro Cancino! 👋</h2>
+                    <p class="text-muted">Aquí tienes un resumen de tu actividad hoy</p>
+                </div>
+            </div>
+            
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon primary me-3">
+                                <i class="bi bi-kanban"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0" id="total-projects">12</h4>
+                                <small class="text-muted">Proyectos Activos</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon success me-3">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0" id="completed-tasks">47</h4>
+                                <small class="text-muted">Tareas Completadas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon warning me-3">
+                                <i class="bi bi-clock"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0" id="pending-tasks">23</h4>
+                                <small class="text-muted">Tareas Pendientes</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-3 col-md-6 mb-3">
+                    <div class="stat-card">
+                        <div class="d-flex align-items-center">
+                            <div class="stat-icon danger me-3">
+                                <i class="bi bi-exclamation-triangle"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-0" id="overdue-tasks">5</h4>
+                                <small class="text-muted">Tareas Vencidas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Charts and Recent Activity -->
+            <div class="row">
+                <!-- Progress Chart -->
+                <div class="col-lg-8 mb-4">
+                    <div class="stat-card">
+                        <h5 class="mb-3">
+                            <i class="bi bi-graph-up text-primary"></i> 
+                            Progreso de Proyectos
+                        </h5>
+                        <div class="chart-container">
+                            <canvas id="progressChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Tasks -->
+                <div class="col-lg-4 mb-4">
+                    <div class="stat-card">
+                        <h5 class="mb-3">
+                            <i class="bi bi-clock-history text-primary"></i> 
+                            Actividad Reciente
+                        </h5>
+                        <div id="recent-activities">
+                            <!-- Las actividades se cargarán dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Upcoming Tasks -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="stat-card">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <h5 class="mb-0">
+                                <i class="bi bi-calendar-check text-primary"></i> 
+                                Próximas Tareas
+                            </h5>
+                            <button class="btn btn-primary btn-sm" onclick="showCreateTaskModal()">
+                                <i class="bi bi-plus"></i> Nueva Tarea
+                            </button>
+                        </div>
+                        
+                        <div class="row" id="upcoming-tasks">
+                            <!-- Las tareas se cargarán dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // === CONFIGURACIÓN GLOBAL ===
+        
+        /**
+         * Configuración de la aplicación TaskFlow
+         * Contiene URLs de API, configuraciones y constantes
+         */
+        const AppConfig = {
+            API_BASE_URL: 'http://localhost:5000/api', // URL base de la API
+            ENDPOINTS: {
+                projects: '/projects',
+                tasks: '/tasks',
+                users: '/users',
+                auth: '/auth'
+            },
+            TASK_STATUS: {
+                pending: 'Pendiente',
+                inProgress: 'En Progreso', 
+                completed: 'Completado',
+                cancelled: 'Cancelado'
+            },
+            PRIORITY_LEVELS: {
+                low: 'Baja',
+                medium: 'Media',
+                high: 'Alta'
+            }
+        };
+        
+        // === GESTIÓN DE NAVEGACIÓN ===
+        
+        /**
+         * Inicializa los event listeners de navegación
+         */
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeNavigation();
+            loadDashboardData();
+            initializeChart();
+            
+            // Toggle del sidebar para móviles
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+        });
+        
+        /**
+         * Configura la navegación del sidebar
+         */
+        function initializeNavigation() {
+            const navLinks = document.querySelectorAll('.nav-link[data-section]');
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remover clase active de todos los links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    
+                    // Agregar clase active al link clickeado
+                    this.classList.add('active');
+                    
+                    // Cargar el contenido correspondiente
+                    const section = this.dataset.section;
+                    loadSection(section);
+                });
+            });
+        }
+        
+        /**
+         * Carga el contenido de una sección específica
+         */
+        function loadSection(section) {
+            const content = document.getElementById('dashboard-content');
+            
+            // Mostrar spinner de carga
+            content.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="loading-spinner"></div>
+                    <p class="mt-2">Cargando ${section}...</p>
+                </div>
+            `;
+            
+            // Simular carga de contenido (en producción vendría de la API)
+            setTimeout(() => {
+                switch(section) {
+                    case 'dashboard':
+                        loadDashboard();
+                        break;
+                    case 'projects':
+                        loadProjects();
+                        break;
+                    case 'tasks':
+                        loadTasks();
+                        break;
+                    case 'team':
+                        loadTeam();
+                        break;
+                    default:
+                        content.innerHTML = `<h3>Sección: ${section}</h3><p>Contenido en desarrollo...</p>`;
+                }
+            }, 500);
+        }
+        
+        // === CARGA DE DATOS ===
+        
+        /**
+         * Carga los datos iniciales del dashboard
+         */
+        function loadDashboardData() {
+            // Simular llamadas a la API
+            loadStatistics();
+            loadRecentActivities();
+            loadUpcomingTasks();
+        }
+        
+        /**
+         * Actualiza las estadísticas del dashboard
+         */
+        function loadStatistics() {
+            // En producción, estos datos vendrían de la API
+            const stats = {
+                totalProjects: 1,
+                completedTasks: 47,
+                pendingTasks: 23,
+                overdueTasks: 5
+            };
+            
+            // Animar los contadores
+            animateCounter('total-projects', stats.totalProjects);
+            animateCounter('completed-tasks', stats.completedTasks);
+            animateCounter('pending-tasks', stats.pendingTasks);
+            animateCounter('overdue-tasks', stats.overdueTasks);
+        }
+        
+        /**
+         * Anima un contador numérico
+         */
+        function animateCounter(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            let currentValue = 0;
+            const increment = targetValue / 50; // 50 pasos de animación
+            
+            const timer = setInterval(() => {
+                currentValue += increment;
+                if (currentValue >= targetValue) {
+                    currentValue = targetValue;
+                    clearInterval(timer);
+                }
+                element.textContent = Math.round(currentValue);
+            }, 30);
+        }
+        
+        /**
+         * Carga las actividades recientes
+         */
+        function loadRecentActivities() {
+            const activities = [
+                { text: 'Tarea completada: "Revisar diseño UI"', time: 'hace 2 horas', icon: 'check-circle', class: 'text-success' },
+                { text: 'Nuevo comentario en "API Development"', time: 'hace 4 horas', icon: 'chat', class: 'text-primary' },
+                { text: 'Tarea asignada: "Testing de funcionalidades"', time: 'hace 1 día', icon: 'person-plus', class: 'text-info' },
+                { text: 'Proyecto creado: "Dashboard Analytics"', time: 'hace 2 días', icon: 'folder-plus', class: 'text-warning' },
+                { text: 'Reunión programada con el equipo de desarrollo', time: 'hace 3 días', icon: 'calendar-event', class: 'text-secondary' }
+            ];
+            
+            const container = document.getElementById('recent-activities');
+            container.innerHTML = activities.map(activity => `
+                <div class="d-flex align-items-start mb-3">
+                    <i class="bi bi-${activity.icon} ${activity.class} me-2 mt-1"></i>
+                    <div class="flex-grow-1">
+                        <p class="mb-1 small">${activity.text}</p>
+                        <small class="text-muted">${activity.time}</small>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        /**
+         * Carga las próximas tareas
+         */
+        function loadUpcomingTasks() {
+            const tasks = [
+                { 
+                    id: 1, 
+                    title: 'Implementar autenticación JWT', 
+                    project: 'TaskFlow API', 
+                    priority: 'high', 
+                    dueDate: '2025-08-25',
+                    assignee: 'Juan Pérez'
+                },
+                { 
+                    id: 2, 
+                    title: 'Diseñar dashboard de reportes', 
+                    project: 'Dashboard UI', 
+                    priority: 'medium', 
+                    dueDate: '2025-08-27',
+                    assignee: 'Ana García'
+                },
+                { 
+                    id: 3, 
+                    title: 'Configurar base de datos Oracle', 
+                    project: 'Infrastructure', 
+                    priority: 'high', 
+                    dueDate: '2025-08-23',
+                    assignee: 'Carlos López'
+                }
+            ];
+            
+            const container = document.getElementById('upcoming-tasks');
+            container.innerHTML = tasks.map(task => `
+                <div class="col-lg-4 col-md-6 mb-3">
+                    <div class="task-card p-3 h-100">
+                        <div class="d-flex">
+                            <div class="task-priority priority-${task.priority} me-3"></div>
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">${task.title}</h6>
+                                <p class="text-muted small mb-2">${task.project}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="status-badge bg-light text-dark">
+                                        <i class="bi bi-calendar"></i> ${formatDate(task.dueDate)}
+                                    </span>
+                                    <span class="status-badge bg-primary text-white">
+                                        ${getPriorityText(task.priority)}
+                                    </span>
+                                </div>
+                                <small class="text-muted mt-1 d-block">
+                                    <i class="bi bi-person"></i> ${task.assignee}
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // === UTILIDADES ===
+        
+        /**
+         * Formatea una fecha para mostrar
+         */
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('es-ES', { 
+                day: '2-digit', 
+                month: 'long' 
+            });
+        }
+        
+        /**
+         * Obtiene el texto de prioridad
+         */
+        function getPriorityText(priority) {
+            return AppConfig.PRIORITY_LEVELS[priority] || priority;
+        }
+        
+        /**
+         * Toggle del sidebar en móviles
+         */
+        function toggleSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            sidebar.classList.toggle('show');
+        }
+        
+        /**
+         * Inicializa el gráfico de progreso
+         */
+        function initializeChart() {
+            const ctx = document.getElementById('progressChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct','Nov', 'Dic'],
+                        datasets: [{
+                            label: 'Tareas Completadas',
+                            data: [12, 19, 15, 25, 32, 42, 47, 55,0,0,0,0],
+                            borderColor: '#2563eb',
+                            backgroundColor: 'rgba(37, 99, 235, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0,0,0,0.1)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: true
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+        
+        // === ACCIONES DE USUARIO ===
+        
+        /**
+         * Muestra el modal para crear nueva tarea
+         */
+        function showCreateTaskModal() {
+            Swal.fire({
+                title: 'Crear Nueva Tarea',
+                html: `
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <label class="form-label">Título de la tarea</label>
+                            <input type="text" class="form-control" id="taskTitle" placeholder="Ej: Implementar API de usuarios">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" id="taskDescription" rows="3" placeholder="Describe los detalles de la tarea..."></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Prioridad</label>
+                                <select class="form-select" id="taskPriority">
+                                    <option value="low">Baja</option>
+                                    <option value="medium" selected>Media</option>
+                                    <option value="high">Alta</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha límite</label>
+                                <input type="date" class="form-control" id="taskDueDate">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Asignar a</label>
+                            <select class="form-select" id="taskAssignee">
+                                <option value="1">Juan Pérez</option>
+                                <option value="2">Ana García</option>
+                                <option value="3">Carlos López</option>
+                                <option value="4">María Rodríguez</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Crear Tarea',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#2563eb',
+                preConfirm: () => {
+                    const title = document.getElementById('taskTitle').value;
+                    const description = document.getElementById('taskDescription').value;
+                    const priority = document.getElementById('taskPriority').value;
+                    const dueDate = document.getElementById('taskDueDate').value;
+                    const assignee = document.getElementById('taskAssignee').value;
+                    
+                    if (!title.trim()) {
+                        Swal.showValidationMessage('El título es requerido');
+                        return false;
+                    }
+                    
+                    return { title, description, priority, dueDate, assignee };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    createTask(result.value);
+                }
+            });
+        }
+        
+        /**
+         * Crea una nueva tarea (simulación)
+         */
+        function createTask(taskData) {
+            // En producción, aquí haríamos una llamada POST a la API
+            console.log('Creando tarea:', taskData);
+            
+            Swal.fire({
+                icon: 'success',
+                title: '¡Tarea creada!',
+                text: `La tarea "${taskData.title}" ha sido creada exitosamente.`,
+                timer: 2000,
+                showConfirmButton: false
+            });
+            
+            // Recargar las tareas
+            setTimeout(() => {
+                loadUpcomingTasks();
+            }, 2000);
+        }
+        
+        /**
+         * Función de logout
+         */
+        function logout() {
+            Swal.fire({
+                title: '¿Cerrar sesión?',
+                text: '¿Estás seguro de que quieres cerrar tu sesión?',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#dc2626',
+                cancelButtonColor: '#6b7280',
+                confirmButtonText: 'Sí, cerrar sesión',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // En producción, aquí limpiaríamos el token y redigiríamos
+                    window.location.href = 'login.html';
+                }
+            });
+        }
+        
+        // === FUNCIONES DE CARGA DE SECCIONES ===
+        
+        /**
+         * Recarga el contenido del dashboard
+         */
+        function loadDashboard() {
+            // Recargar el HTML del dashboard completo
+            location.reload();
+        }
+        
+        /**
+         * Carga la sección de proyectos
+         */
+        function loadProjects() {
+            const content = document.getElementById('dashboard-content');
+            content.innerHTML = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2>Gestión de Proyectos</h2>
+                            <button class="btn btn-primary" onclick="showCreateProjectModal()">
+                                <i class="bi bi-plus"></i> Nuevo Proyecto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Filtros de proyectos -->
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <input type="text" class="form-control" placeholder="Buscar proyectos..." id="projectSearch">
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="projectStatusFilter">
+                            <option value="">Todos los estados</option>
+                            <option value="active">Activo</option>
+                            <option value="completed">Completado</option>
+                            <option value="paused">Pausado</option>
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <select class="form-select" id="projectPriorityFilter">
+                            <option value="">Todas las prioridades</option>
+                            <option value="high">Alta</option>
+                            <option value="medium">Media</option>
+                            <option value="low">Baja</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-outline-primary w-100" onclick="applyProjectFilters()">
+                            <i class="bi bi-funnel"></i> Filtrar
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Lista de proyectos -->
+                <div class="row" id="projects-list">
+                    ${generateProjectCards()}
+                </div>
+            `;
+        }
+        
+        /**
+         * Genera las tarjetas de proyectos
+         */
+        function generateProjectCards() {
+            const projects = [
+                {
+                    id: 1,
+                    name: 'TaskFlow Manager',
+                    description: 'Sistema completo de gestión de tareas y proyectos colaborativo',
+                    status: 'active',
+                    priority: 'high',
+                    progress: 75,
+                    teamSize: 4,
+                    dueDate: '2025-09-15',
+                    manager: 'Juan Pérez'
+                },
+                {
+                    id: 2,
+                    name: 'API REST Backend',
+                    description: 'Desarrollo de API RESTful con .NET 8 y Entity Framework',
+                    status: 'active',
+                    priority: 'high',
+                    progress: 60,
+                    teamSize: 2,
+                    dueDate: '2025-08-30',
+                    manager: 'Ana García'
+                },
+                {
+                    id: 3,
+                    name: 'Dashboard Analytics',
+                    description: 'Implementación de métricas y reportes visuales',
+                    status: 'active',
+                    priority: 'medium',
+                    progress: 30,
+                    teamSize: 3,
+                    dueDate: '2025-10-01',
+                    manager: 'Carlos López'
+                }
+            ];
+            
+            return projects.map(project => `
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="stat-card h-100">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <h5 class="mb-0">${project.name}</h5>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-pencil"></i> Editar</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="bi bi-eye"></i> Ver detalles</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item text-danger" href="#"><i class="bi bi-trash"></i> Eliminar</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <p class="text-muted small mb-3">${project.description}</p>
+                        
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between mb-1">
+                                <small class="text-muted">Progreso</small>
+                                <small class="text-muted">${project.progress}%</small>
+                            </div>
+                            <div class="progress" style="height: 6px;">
+                                <div class="progress-bar bg-primary" style="width: ${project.progress}%"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <small class="text-muted d-block">Estado</small>
+                                <span class="status-badge bg-success text-white">
+                                    ${getStatusText(project.status)}
+                                </span>
+                            </div>
+                            <div class="col-6">
+                                <small class="text-muted d-block">Prioridad</small>
+                                <span class="status-badge bg-${getPriorityColor(project.priority)} text-white">
+                                    ${getPriorityText(project.priority)}
+                                </span>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    <i class="bi bi-people"></i> ${project.teamSize} miembros
+                                </small>
+                            </div>
+                            <div>
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar"></i> ${formatDate(project.dueDate)}
+                                </small>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        <small class="text-muted">
+                            <i class="bi bi-person-badge"></i> ${project.manager}
+                        </small>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        /**
+         * Carga la sección de tareas
+         */
+        function loadTasks() {
+            const content = document.getElementById('dashboard-content');
+            content.innerHTML = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2>Gestión de Tareas</h2>
+                            <button class="btn btn-primary" onclick="showCreateTaskModal()">
+                                <i class="bi bi-plus"></i> Nueva Tarea
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Tablero Kanban -->
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <h6 class="text-muted mb-3">
+                                <i class="bi bi-clock text-warning"></i> Pendientes (${getPendingTasksCount()})
+                            </h6>
+                            <div class="kanban-column" id="pending-tasks-column">
+                                ${generateTaskCards('pending')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <h6 class="text-muted mb-3">
+                                <i class="bi bi-play text-info"></i> En Progreso (${getInProgressTasksCount()})
+                            </h6>
+                            <div class="kanban-column" id="inprogress-tasks-column">
+                                ${generateTaskCards('inProgress')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <h6 class="text-muted mb-3">
+                                <i class="bi bi-eye text-primary"></i> En Revisión (${getReviewTasksCount()})
+                            </h6>
+                            <div class="kanban-column" id="review-tasks-column">
+                                ${generateTaskCards('review')}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-lg-3 col-md-6 mb-4">
+                        <div class="stat-card">
+                            <h6 class="text-muted mb-3">
+                                <i class="bi bi-check-circle text-success"></i> Completadas (${getCompletedTasksCount()})
+                            </h6>
+                            <div class="kanban-column" id="completed-tasks-column">
+                                ${generateTaskCards('completed')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        /**
+         * Carga la sección de equipo
+         */
+        function loadTeam() {
+            const content = document.getElementById('dashboard-content');
+            content.innerHTML = `
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h2>Gestión de Equipo</h2>
+                            <button class="btn btn-primary" onclick="showInviteUserModal()">
+                                <i class="bi bi-person-plus"></i> Invitar Usuario
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    ${generateTeamCards()}
+                </div>
+            `;
+        }
+        
+        // === FUNCIONES AUXILIARES PARA SECCIONES ===
+        
+        function getStatusText(status) {
+            const statusMap = {
+                active: 'Activo',
+                completed: 'Completado',
+                paused: 'Pausado'
+            };
+            return statusMap[status] || status;
+        }
+        
+        function getPriorityColor(priority) {
+            const colorMap = {
+                high: 'danger',
+                medium: 'warning',
+                low: 'success'
+            };
+            return colorMap[priority] || 'secondary';
+        }
+        
+        function getPendingTasksCount() { return 8; }
+        function getInProgressTasksCount() { return 5; }
+        function getReviewTasksCount() { return 3; }
+        function getCompletedTasksCount() { return 12; }
+        
+        function generateTaskCards(status) {
+            // Datos simulados de tareas por estado
+            const tasksByStatus = {
+                pending: [
+                    { id: 1, title: 'Configurar base de datos', priority: 'high', assignee: 'Juan Pérez' },
+                    { id: 2, title: 'Diseñar API endpoints', priority: 'medium', assignee: 'Ana García' }
+                ],
+                inProgress: [
+                    { id: 3, title: 'Implementar autenticación', priority: 'high', assignee: 'Carlos López' }
+                ],
+                review: [
+                    { id: 4, title: 'Testing de componentes', priority: 'medium', assignee: 'María Rodríguez' }
+                ],
+                completed: [
+                    { id: 5, title: 'Setup inicial del proyecto', priority: 'low', assignee: 'Juan Pérez' },
+                    { id: 6, title: 'Documentación técnica', priority: 'medium', assignee: 'Ana García' }
+                ]
+            };
+            
+            const tasks = tasksByStatus[status] || [];
+            
+            return tasks.map(task => `
+                <div class="task-card p-2 mb-2" draggable="true">
+                    <div class="d-flex">
+                        <div class="task-priority priority-${task.priority} me-2"></div>
+                        <div class="flex-grow-1">
+                            <h6 class="mb-1 small">${task.title}</h6>
+                            <small class="text-muted">
+                                <i class="bi bi-person"></i> ${task.assignee}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function generateTeamCards() {
+            const teamMembers = [
+                {
+                    id: 1,
+                    name: 'Juan Pérez',
+                    role: 'Full Stack Developer',
+                    email: 'juan.perez@taskflow.com',
+                    avatar: 'https://ui-avatars.com/api/?name=Juan+Perez&background=2563eb&color=fff',
+                    activeTasks: 5,
+                    completedTasks: 23,
+                    status: 'online'
+                },
+                {
+                    id: 2,
+                    name: 'Ana García',
+                    role: 'Frontend Developer',
+                    email: 'ana.garcia@taskflow.com',
+                    avatar: 'https://ui-avatars.com/api/?name=Ana+Garcia&background=059669&color=fff',
+                    activeTasks: 3,
+                    completedTasks: 18,
+                    status: 'online'
+                },
+                {
+                    id: 3,
+                    name: 'Carlos López',
+                    role: 'Backend Developer',
+                    email: 'carlos.lopez@taskflow.com',
+                    avatar: 'https://ui-avatars.com/api/?name=Carlos+Lopez&background=d97706&color=fff',
+                    activeTasks: 4,
+                    completedTasks: 15,
+                    status: 'offline'
+                }
+            ];
+            
+            return teamMembers.map(member => `
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="stat-card text-center">
+                        <div class="position-relative d-inline-block mb-3">
+                            <img src="${member.avatar}" alt="${member.name}" 
+                                 class="rounded-circle" width="80" height="80">
+                            <span class="position-absolute bottom-0 end-0 bg-${member.status === 'online' ? 'success' : 'secondary'} 
+                                         rounded-circle p-1" style="width: 20px; height: 20px;"></span>
+                        </div>
+                        <h5 class="mb-1">${member.name}</h5>
+                        <p class="text-muted mb-2">${member.role}</p>
+                        <p class="small text-muted mb-3">${member.email}</p>
+                        
+                        <div class="row text-center mb-3">
+                            <div class="col-6">
+                                <h6 class="text-primary mb-0">${member.activeTasks}</h6>
+                                <small class="text-muted">Activas</small>
+                            </div>
+                            <div class="col-6">
+                                <h6 class="text-success mb-0">${member.completedTasks}</h6>
+                                <small class="text-muted">Completadas</small>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2 d-md-block">
+                            <button class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-chat"></i> Mensaje
+                            </button>
+                            <button class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-eye"></i> Perfil
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // === FUNCIONES MODALES ADICIONALES ===
+        
+        function showCreateProjectModal() {
+            Swal.fire({
+                title: 'Crear Nuevo Proyecto',
+                html: `
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <label class="form-label">Nombre del proyecto</label>
+                            <input type="text" class="form-control" id="projectName" placeholder="Ej: Sistema de inventario">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" id="projectDescription" rows="3"></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha de inicio</label>
+                                <input type="date" class="form-control" id="projectStartDate">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha límite</label>
+                                <input type="date" class="form-control" id="projectEndDate">
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Crear Proyecto',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#2563eb'
+            });
+        }
+        
+        function showInviteUserModal() {
+            Swal.fire({
+                title: 'Invitar Usuario',
+                html: `
+                    <div class="text-start">
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control" id="userEmail" placeholder="usuario@empresa.com">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Rol</label>
+                            <select class="form-select" id="userRole">
+                                <option value="employee">Empleado</option>
+                                <option value="manager">Manager</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'Enviar Invitación',
+                cancelButtonText: 'Cancelar',
+                confirmButtonColor: '#2563eb'
+            });
+        }
+        
+        // === API SIMULATION FUNCTIONS ===
+        
+        /**
+         * Simulación de llamadas a la API
+         * En producción, estas funciones harían llamadas reales HTTP
+         */
+        class TaskFlowAPI {
+            static baseUrl = AppConfig.API_BASE_URL;
+            
+            // Simulación de autenticación
+            static async login(credentials) {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({
+                            success: true,
+                            token: 'jwt-token-example',
+                            user: { id: 1, name: 'Juan Pérez', role: 'admin' }
+                        });
+                    }, 1000);
+                });
+            }
+            
+            // Simulación de obtener proyectos
+            static async getProjects() {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({
+                            success: true,
+                            data: [
+                                { id: 1, name: 'TaskFlow Manager', status: 'active' },
+                                { id: 2, name: 'API Development', status: 'active' }
+                            ]
+                        });
+                    }, 800);
+                });
+            }
+            
+            // Simulación de crear tarea
+            static async createTask(taskData) {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        resolve({
+                            success: true,
+                            data: { id: Date.now(), ...taskData }
+                        });
+                    }, 600);
+                });
+            }
+        }
+        
+        // === MANEJO DE ERRORES ===
+        
+        /**
+         * Manejo global de errores de la aplicación
+         */
+        window.addEventListener('error', function(e) {
+            console.error('Error en la aplicación:', e.error);
+            
+            Swal.fire({
+                icon: 'error',
+                title: 'Error inesperado',
+                text: 'Ha ocurrido un error en la aplicación. Por favor, recarga la página.',
+                confirmButtonColor: '#dc2626'
+            });
+        });
+        
+        /**
+         * Manejo de promesas rechazadas
+         */
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Promesa rechazada:', e.reason);
+            e.preventDefault();
+        });
+        
+        console.log('🚀 TaskFlow Manager iniciado correctamente');
+    </script>
+</body>
+</html>
