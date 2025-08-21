@@ -28,3 +28,8 @@ class TaskFlowAPI {
     });
   }
 }
+async function fetchProjects() {
+    const response = await fetch("http://localhost:5176/api/projects");
+    if (!response.ok) throw new Error("Error al obtener proyectos");
+    return await response.json();
+}
