@@ -8,7 +8,9 @@ async function initProjects() {
   try {
     const projects = await fetchProjects();
 
-    const html = projects.map(p => `
+    const html = projects
+      .map(
+        (p) => `
       <div class="col-lg-4 col-md-6 mb-4">
         <div class="stat-card h-100">
           <div class="d-flex justify-content-between align-items-start mb-3">
@@ -30,40 +32,79 @@ async function initProjects() {
 
           <div class="mb-3">
             <div class="d-flex justify-content-between mb-1">
-              <small class="text-muted">Progreso</small>
-              <small class="text-muted">50%</small>
-            </div>
-            <div class="progress" style="height: 6px;">
-              <div class="progress-bar bg-primary" style="width: 50%"></div>
-            </div>
+  <small class="text-muted">Progreso</small>
+  <small class="text-muted">${p.progress}%</small>
+</div>
+<div class="progress" style="height: 6px;">
+  <div class="progress-bar bg-primary" style="width: ${p.progress}%"></div>
+</div>
           </div>
 
           <div class="row mb-3">
-            <div class="col-6">
-              <small class="text-muted d-block">Estado</small>
-              <span class="status-badge bg-success text-white">Activo</span>
-            </div>
-            <div class="col-6">
-              <small class="text-muted d-block">Prioridad</small>
-              <span class="status-badge bg-warning text-white">Media</span>
-            </div>
-          </div>
+  <div class="col-6">
+    <small class="text-muted d-block">Estado</small>
+    <span class="status-badge bg-success text-white">${getStatusText(p.status)}</span>
+  </div>
+  <div class="col-6">
+    <small class="text-muted d-block">Prioridad</small>
+    <span class="status-badge bg-${getPriorityColor(p.priority)} text-white">${getPriorityText(p.priority)}</span>
+  </div>
+</div>
 
           <div class="d-flex justify-content-between align-items-center">
-            <div><small class="text-muted"><i class="bi bi-people"></i> 3 miembros</small></div>
-            <div><small class="text-muted"><i class="bi bi-calendar"></i> ${p.fechaFin ? formatDate(p.fechaFin) : "Sin fecha"}</small></div>
-          </div>
+  <div><small class="text-muted"><i class="bi bi-people"></i> ${p.teamSize} miembros</small></div>
+  <div><small class="text-muted"><i class="bi bi-calendar"></i> ${formatDate(p.fechaFin)}</small></div>
+</div>
 
           <hr>
-          <small class="text-muted"><i class="bi bi-person-badge"></i> Usuario #${p.usuarioId}</small>
+<small class="text-muted"><i class="bi bi-person-badge"></i> ${p.manager}</small>
         </div>
       </div>
-    `).join('');
+    `
+      )
+      .join("");
 
     document.getElementById("projects-list").innerHTML = html;
-
   } catch (err) {
     console.error(err);
-    document.getElementById("projects-list").innerHTML = "<p>Error cargando proyectos</p>";
+    document.getElementById("projects-list").innerHTML =
+      "<p>Error cargando proyectos</p>";
   }
+}
+
+function getStatusText(status) {
+  const statusMap = { 
+    active: "Activo", 
+    completed: "Completado", 
+    paused: "Pausado" 
+  };
+  return statusMap[status] || status;
+}
+
+function getPriorityText(priority) {
+  const priorityMap = { 
+    high: "Alta", 
+    medium: "Media", 
+    low: "Baja" 
+  };
+  return priorityMap[priority] || priority;
+}
+
+function getPriorityColor(priority) {
+  const colorMap = { 
+    high: "danger", 
+    medium: "warning", 
+    low: "success" 
+  };
+  return colorMap[priority] || "secondary";
+}
+
+function formatDate(dateString) {
+  if (!dateString) return "Sin fecha";
+  const date = new Date(dateString);
+  return date.toLocaleDateString("es-MX", {
+    year: "numeric",
+    month: "short",
+    day: "numeric"
+  });
 }
