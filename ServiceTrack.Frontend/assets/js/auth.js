@@ -14,6 +14,14 @@ function logout() {
     confirmButtonText: 'Sí, cerrar sesión',
     cancelButtonText: 'Cancelar'
   }).then((result) => {
-    if (result.isConfirmed) window.location.href = 'login.html';
+    if (result.isConfirmed) 
+    localStorage.removeItem("token");
+    localStorage.removeItem("userEmail");
+    localStorage.clear();
+    window.history.pushState(null,"",window.location.href);
+    window.onpopstate = function() {
+      window.history.go(1);
+    };
+    window.location.href = 'login.html';
   });
 }

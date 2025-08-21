@@ -1,5 +1,8 @@
+using System.ComponentModel.DataAnnotations.Schema;
+
 namespace ServiceTrack.API.Models
 {
+    [Table("USUARIOS", Schema = "SEGURIDAD")]
     public class Usuario
     {
         public int Id { get; set; }

@@ -3,6 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+  <script>
+  // Si no hay token, regresa al login
+  console.log(localStorage.getItem("token"));
+  if (!localStorage.getItem("token")) {
+    window.location.href = "login.html";
+  }
+</script>
+
   <title>TaskFlow Manager - Dashboard</title>
 
   <!-- Bootstrap 5.3 CSS -->

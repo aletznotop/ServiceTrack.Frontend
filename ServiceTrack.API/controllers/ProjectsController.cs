@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ServiceTrack.API.Data;
@@ -15,13 +16,13 @@ namespace ServiceTrack.API.Controllers
         {
             _context = context;
         }
-
+        [Authorize]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Proyecto>>> GetProyectos()
         {
             return await _context.Proyectos.Include(p => p.Usuario).ToListAsync();
         }
-
+        [Authorize]
         [HttpGet("{id}")]
         public async Task<ActionResult<Proyecto>> GetProyecto(int id)
         {
@@ -29,7 +30,7 @@ namespace ServiceTrack.API.Controllers
             if (proyecto == null) return NotFound();
             return proyecto;
         }
-
+        [Authorize]
         [HttpPost]
         public async Task<ActionResult<Proyecto>> PostProyecto(Proyecto proyecto)
         {
@@ -37,7 +38,7 @@ namespace ServiceTrack.API.Controllers
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetProyecto), new { id = proyecto.Id }, proyecto);
         }
-
+        [Authorize]
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProyecto(int id, Proyecto proyecto)
         {
@@ -46,7 +47,7 @@ namespace ServiceTrack.API.Controllers
             await _context.SaveChangesAsync();
             return NoContent();
         }
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProyecto(int id)
         {
