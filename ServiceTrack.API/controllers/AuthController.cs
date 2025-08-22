@@ -41,7 +41,17 @@ namespace ServiceTrack.API.Controllers
                 return Unauthorized("Usuario o contraseña incorrectos");
 
             var token = _jwtService.GenerateToken(user.Id, user.Email, user.Rol);
-            return Ok(new { token });
+            return Ok(new
+            {
+                token,
+            user = new
+            {
+                id = user.Id,
+                nombre = user.Nombre,
+                email = user.Email,
+                rol = user.Rol
+            }
+             });
         }
 
         private string HashPassword(string password)

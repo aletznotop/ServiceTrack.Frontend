@@ -9,7 +9,6 @@
 
   <script>
   // Si no hay token, regresa al login
-  console.log(localStorage.getItem("token"));
   if (!localStorage.getItem("token")) {
     window.location.href = "login.html";
   }
@@ -92,8 +91,8 @@
 
         <!-- User Menu -->
         <div class="dropdown">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
-            <i class="bi bi-person-circle"></i> Alejandro Cancino
+          <button id="userMenu" class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle"></i> <span id="userNameHeader">Usuario</span>
           </button>
           <ul class="dropdown-menu dropdown-menu-end">
             <li><a class="dropdown-item" href="#"><i class="bi bi-person"></i> Mi Perfil</a></li>

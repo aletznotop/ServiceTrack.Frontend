@@ -1,29 +1,85 @@
-// === DASHBOARD ===
-// Encargado de estadísticas, actividades recientes, próximas tareas y gráfica.
+const API_DASHBOARD = "http://localhost:5176/api/dashboard";
 
 function initDashboard() {
+  const nombre = localStorage.getItem("userNombre") || "Usuario";
+  const span = document.getElementById("userNombreHeader");
+  if (span) span.innerText = nombre;
+
   loadStatistics();
   loadRecentActivities();
   loadUpcomingTasks();
   initializeChart();
 }
 
-/** Actualiza las tarjetas de estadísticas */
+/** Estadísticas desde API */
 function loadStatistics() {
-  const stats = {
-    totalProjects: 1,
-    completedTasks: 47,
-    pendingTasks: 23,
-    overdueTasks: 5
-  };
-
-  animateCounter('total-projects', stats.totalProjects);
-  animateCounter('completed-tasks', stats.completedTasks);
-  animateCounter('pending-tasks', stats.pendingTasks);
-  animateCounter('overdue-tasks', stats.overdueTasks);
+  fetch(`${API_DASHBOARD}/statistics`, {
+    headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+  })
+    .then(r => r.json())
+    .then(stats => {
+      animateCounter('total-projects', stats.totalProjects);
+      animateCounter('completed-tasks', stats.completedTasks);
+      animateCounter('pending-tasks', stats.pendingTasks);
+      animateCounter('overdue-tasks', stats.overdueTasks);
+    })
+    .catch(err => console.error("Error estadísticas", err));
 }
 
-/** Anima un contador numérico suave */
+/** Actividades recientes */
+function loadRecentActivities() {
+  fetch(`${API_DASHBOARD}/recent-activities`, {
+    headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+  })
+    .then(r => r.json())
+    .then(activities => {
+      const container = document.getElementById('recent-activities');
+      if (!container) return;
+      container.innerHTML = activities.map(a => `
+        <div class="d-flex align-items-start mb-3">
+          <i class="bi bi-${a.icon} ${a.class} me-2 mt-1"></i>
+          <div class="flex-grow-1">
+            <p class="mb-1 small">${a.text}</p>
+            <small class="text-muted">${formatDate(a.time)}</small>
+          </div>
+        </div>
+      `).join('');
+    })
+    .catch(err => console.error("Error actividades", err));
+}
+
+/** Próximas tareas */
+function loadUpcomingTasks() {
+  fetch(`${API_DASHBOARD}/upcoming-tasks`, {
+    headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+  })
+    .then(r => r.json())
+    .then(tasks => {
+      const container = document.getElementById('upcoming-tasks');
+      if (!container) return;
+      container.innerHTML = tasks.map(task => `
+        <div class="col-lg-4 col-md-6 mb-3">
+          <div class="task-card p-3 h-100">
+            <div class="d-flex">
+              <div class="task-priority priority-${task.priority} me-3"></div>
+              <div class="flex-grow-1">
+                <h6 class="mb-1">${task.title}</h6>
+                <p class="text-muted small mb-2">${task.project}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                  <span class="status-badge bg-light text-dark"><i class="bi bi-calendar"></i> ${formatDate(task.dueDate)}</span>
+                  <span class="status-badge bg-primary text-white">${getPriorityText(task.priority)}</span>
+                </div>
+                <small class="text-muted mt-1 d-block"><i class="bi bi-person"></i> ${task.assignee}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    })
+    .catch(err => console.error("Error próximas tareas", err));
+}
+
+/** Animación contador */
 function animateCounter(elementId, targetValue) {
   const element = document.getElementById(elementId);
   if (!element) return;
@@ -40,70 +96,29 @@ function animateCounter(elementId, targetValue) {
   }, 30);
 }
 
-/** Renderiza la lista de actividades recientes */
-function loadRecentActivities() {
-  const activities = [
-    { text: 'Tarea completada: "Revisar diseño UI"', time: 'hace 2 horas', icon: 'check-circle', class: 'text-success' },
-    { text: 'Nuevo comentario en "API Development"', time: 'hace 4 horas', icon: 'chat', class: 'text-primary' },
-    { text: 'Tarea asignada: "Testing de funcionalidades"', time: 'hace 1 día', icon: 'person-plus', class: 'text-info' },
-    { text: 'Proyecto creado: "Dashboard Analytics"', time: 'hace 2 días', icon: 'folder-plus', class: 'text-warning' },
-    { text: 'Reunión programada con el equipo de desarrollo', time: 'hace 3 días', icon: 'calendar-event', class: 'text-secondary' }
-  ];
-
-  const container = document.getElementById('recent-activities');
-  if (!container) return;
-  container.innerHTML = activities.map(a => `
-    <div class="d-flex align-items-start mb-3">
-      <i class="bi bi-${a.icon} ${a.class} me-2 mt-1"></i>
-      <div class="flex-grow-1">
-        <p class="mb-1 small">${a.text}</p>
-        <small class="text-muted">${a.time}</small>
-      </div>
-    </div>
-  `).join('');
+/** Formato fecha */
+function formatDate(dateString) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long' });
 }
 
-/** Renderiza las próximas tareas */
-function loadUpcomingTasks() {
-  const tasks = [
-    { id: 1, title: 'Implementar autenticación JWT', project: 'TaskFlow API', priority: 'high',   dueDate: '2025-08-25', assignee: 'Juan Pérez' },
-    { id: 2, title: 'Diseñar dashboard de reportes', project: 'Dashboard UI', priority: 'medium', dueDate: '2025-08-27', assignee: 'Ana García' },
-    { id: 3, title: 'Configurar base de datos Oracle', project: 'Infrastructure', priority: 'high', dueDate: '2025-08-23', assignee: 'Carlos López' }
-  ];
-
-  const container = document.getElementById('upcoming-tasks');
-  if (!container) return;
-  container.innerHTML = tasks.map(task => `
-    <div class="col-lg-4 col-md-6 mb-3">
-      <div class="task-card p-3 h-100">
-        <div class="d-flex">
-          <div class="task-priority priority-${task.priority} me-3"></div>
-          <div class="flex-grow-1">
-            <h6 class="mb-1">${task.title}</h6>
-            <p class="text-muted small mb-2">${task.project}</p>
-            <div class="d-flex justify-content-between align-items-center">
-              <span class="status-badge bg-light text-dark"><i class="bi bi-calendar"></i> ${formatDate(task.dueDate)}</span>
-              <span class="status-badge bg-primary text-white">${getPriorityText(task.priority)}</span>
-            </div>
-            <small class="text-muted mt-1 d-block"><i class="bi bi-person"></i> ${task.assignee}</small>
-          </div>
-        </div>
-      </div>
-    </div>
-  `).join('');
+function getPriorityText(priority) {
+  const map = { high: "Alta", medium: "Media", low: "Baja" };
+  return map[priority] || priority;
 }
 
 /** Inicializa la gráfica del dashboard */
 function initializeChart() {
   const ctx = document.getElementById('progressChart');
   if (!ctx || typeof Chart === 'undefined') return;
+
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
       datasets: [{
         label: 'Tareas Completadas',
-        data: [12, 19, 15, 25, 32, 42, 47, 55, 0, 0, 0, 0],
+        data: [5, 10, 8, 15, 20, 25, 30, 35], // luego lo puedes reemplazar con datos reales
         borderColor: '#2563eb',
         backgroundColor: 'rgba(37, 99, 235, 0.1)',
         tension: 0.4,
@@ -115,19 +130,9 @@ function initializeChart() {
       maintainAspectRatio: false,
       plugins: { legend: { display: false } },
       scales: {
-        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.1)' } },
+        y: { beginAtZero: true },
         x: { grid: { display: true } }
       }
     }
   });
-}
-
-// === Utilidades compartidas por varios módulos del Frontend ===
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long' });
-}
-
-function getPriorityText(priority) {
-  return AppConfig.PRIORITY_LEVELS[priority] || priority;
 }

@@ -1,4 +1,24 @@
 // === AUTENTICACIÓN (UI) ===
+
+document.addEventListener("DOMContentLoaded", () => {
+  const nombre = localStorage.getItem("userNombre");
+  const email = localStorage.getItem("userEmail");
+
+  if (!nombre) {
+    // Si no hay sesión válida → al login
+    window.location.href = "login.html";
+    return;
+  }
+
+  // Poner el nombre en el header
+  document.getElementById("userNameHeader").innerText = nombre;
+  
+  // Opcional: tooltip con el correo
+  const userMenu = document.getElementById("userMenu");
+  userMenu.setAttribute("title", email);
+});
+
+
 function logout() {
   if (!window.Swal) {
     window.location.href = 'login.html';
@@ -14,14 +34,21 @@ function logout() {
     confirmButtonText: 'Sí, cerrar sesión',
     cancelButtonText: 'Cancelar'
   }).then((result) => {
-    if (result.isConfirmed) 
+    if (result.isConfirmed) {
     localStorage.removeItem("token");
     localStorage.removeItem("userEmail");
     localStorage.clear();
     window.history.pushState(null,"",window.location.href);
     window.onpopstate = function() {
       window.history.go(1);
-    };
+    }
     window.location.href = 'login.html';
+    }else{
+      Swal.fire({
+        title: 'Sesión no cerrada',
+        text: 'Tu sesión sigue activa.',
+        icon: 'info'
+      });
+    }
   });
 }

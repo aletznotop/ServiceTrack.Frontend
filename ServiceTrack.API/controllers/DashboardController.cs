@@ -1,0 +1,75 @@
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using ServiceTrack.API.Data;   // Asegúrate que este namespace es el de tu DbContext
+using System;
+using System.Linq;
+
+namespace ServiceTrack.API.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    [Authorize] // Requiere token JWT
+    public class DashboardController : ControllerBase
+    {
+        private readonly ServiceTrackContext _context;
+
+        public DashboardController(ServiceTrackContext context)
+        {
+            _context = context;
+        }
+
+        // === Estadísticas ===
+        [HttpGet("statistics")]
+        public IActionResult GetStatistics()
+        {
+            var stats = new
+            {
+                totalProjects = _context.Proyectos.Count(),
+                completedTasks = _context.Tareas.Count(t => t.Estado == "completada"),
+                pendingTasks = _context.Tareas.Count(t => t.Estado == "pendiente"),
+                overdueTasks = _context.Tareas.Count(t => t.FechaVencimiento < DateTime.Now && t.Estado != "completada")
+            };
+            return Ok(stats);
+        }
+
+        // === Actividades recientes ===
+        // [HttpGet("recent-activities")]
+        // public IActionResult GetRecentActivities()
+        // {
+        //     var activities = _context.Activities
+        //         .OrderByDescending(a => a.CreatedAt)
+        //         .Take(5)
+        //         .Select(a => new
+        //         {
+        //             text = a.Description,
+        //             time = a.CreatedAt,
+        //             icon = a.Type,
+        //             @class = a.CssClass
+        //         })
+        //         .ToList();
+
+        //     return Ok(activities);
+        // }
+
+        // === Próximas tareas ===
+        [HttpGet("upcoming-tasks")]
+        public IActionResult GetUpcomingTasks()
+        {
+            var tasks = _context.Tareas
+                .Where(t => t.FechaVencimiento >= DateTime.Now)
+                .OrderBy(t => t.FechaVencimiento)
+                .Take(5)
+                .Select(t => new
+                {
+                    id = t.Id,
+                    title = t.Nombre,
+                    project = t.Proyecto.Nombre,
+                    priority = t.Prioridad,
+                    dueDate = t.FechaVencimiento
+                })
+                .ToList();
+
+            return Ok(tasks);
+        }
+    }
+}

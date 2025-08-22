@@ -21,12 +21,18 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
     // 🔑 Guardamos el token
     localStorage.setItem("token", data.token);
+    console.log(data);
+    debugger;
     localStorage.setItem("userEmail", email);
+    localStorage.setItem("userNombre", data.user.nombre);
+    localStorage.setItem("userEmail", data.user.email);
+    localStorage.setItem("userRol", data.user.rol);
 
     // Redirigir al dashboard
     window.location.href = "index.html";
 
   } catch (err) {
-    document.getElementById("loginMessage").innerText = err.message;
+    console.log(err);
+    document.getElementById("loginMessage").innerText = err.message ;
   }
 });
