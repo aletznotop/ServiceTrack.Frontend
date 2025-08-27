@@ -1,62 +1,74 @@
 // === TAREAS ===
-function initTasks() {
+
+const API_BASE = "http://localhost:5176/api";
+
+async function initTasks() {
+  const tasks = await fetchTasks();
+console.log(tasks);
   // Contadores
-  setSectionCounts();
-  // Columnas Kanban
-  const cols = {
-    'pending-tasks-column': generateTaskCards('pending'),
-    'inprogress-tasks-column': generateTaskCards('inProgress'),
-    'review-tasks-column': generateTaskCards('review'),
-    'completed-tasks-column': generateTaskCards('completed')
+  setSectionCounts(tasks);
+
+  // Agrupamos por estado
+  const grouped = {
+    pending: tasks.filter(t => t.estado === "pending"),
+    inProgress: tasks.filter(t => t.estado === "inProgress"),
+    review: tasks.filter(t => t.estado === "review"),
+    completed: tasks.filter(t => t.estado === "completed")
   };
-  for (const [id, html] of Object.entries(cols)) {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = html;
+
+  // Render columnas Kanban
+  document.getElementById("pending-tasks-column").innerHTML =
+    generateTaskCards(grouped.pending);
+  document.getElementById("inprogress-tasks-column").innerHTML =
+    generateTaskCards(grouped.inProgress);
+  document.getElementById("review-tasks-column").innerHTML =
+    generateTaskCards(grouped.review);
+  document.getElementById("completed-tasks-column").innerHTML =
+    generateTaskCards(grouped.completed);
+}
+
+/** Trae todas las tareas del backend */
+async function fetchTasks() {
+  try {
+    const res = await fetch(`${API_BASE}/tasks`, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      }
+    });
+    if (!res.ok) throw new Error("Error cargando tareas");
+    return await res.json();
+  } catch (err) {
+    console.error(err);
+    return [];
   }
 }
 
-function setSectionCounts() {
+/** Actualiza los contadores en las cabeceras de columnas */
+function setSectionCounts(tasks) {
   const pending = document.querySelector('#pending-count');
   const inprog  = document.querySelector('#inprogress-count');
   const review  = document.querySelector('#review-count');
   const done    = document.querySelector('#completed-count');
-  if (pending) pending.textContent = getPendingTasksCount();
-  if (inprog)  inprog.textContent  = getInProgressTasksCount();
-  if (review)  review.textContent  = getReviewTasksCount();
-  if (done)    done.textContent    = getCompletedTasksCount();
+
+  if (pending) pending.textContent = tasks.filter(t => t.estado === "pending").length;
+  if (inprog)  inprog.textContent  = tasks.filter(t => t.estado === "inProgress").length;
+  if (review)  review.textContent  = tasks.filter(t => t.estado === "review").length;
+  if (done)    done.textContent    = tasks.filter(t => t.estado === "completed").length;
 }
 
-function getPendingTasksCount() { return 8; }
-function getInProgressTasksCount() { return 5; }
-function getReviewTasksCount() { return 3; }
-function getCompletedTasksCount() { return 12; }
-
-function generateTaskCards(status) {
-  const tasksByStatus = {
-    pending: [
-      { id: 1, title: 'Configurar base de datos', priority: 'high', assignee: 'Juan Pérez' },
-      { id: 2, title: 'Diseñar API endpoints', priority: 'medium', assignee: 'Ana García' }
-    ],
-    inProgress: [
-      { id: 3, title: 'Implementar autenticación', priority: 'high', assignee: 'Carlos López' }
-    ],
-    review: [
-      { id: 4, title: 'Testing de componentes', priority: 'medium', assignee: 'María Rodríguez' }
-    ],
-    completed: [
-      { id: 5, title: 'Setup inicial del proyecto', priority: 'low', assignee: 'Juan Pérez' },
-      { id: 6, title: 'Documentación técnica', priority: 'medium', assignee: 'Ana García' }
-    ]
-  };
-  const tasks = tasksByStatus[status] || [];
-
+/** Genera las tarjetas de cada tarea */
+function generateTaskCards(tasks) {
   return tasks.map(task => `
     <div class="task-card p-2 mb-2" draggable="true">
       <div class="d-flex">
-        <div class="task-priority priority-${task.priority} me-2"></div>
+        <div class="task-priority priority-${task.prioridad} me-2"></div>
         <div class="flex-grow-1">
-          <h6 class="mb-1 small">${task.title}</h6>
-          <small class="text-muted"><i class="bi bi-person"></i> ${task.assignee}</small>
+          <h6 class="mb-1 small">${task.nombre}</h6>
+          <small class="text-muted"><i class="bi bi-person"></i> ${task.assignee?.nombre || "Sin asignar"}</small>
+          <br>
+          <small class="text-muted"><i class="bi bi-calendar"></i> ${task.fechaVencimiento || "Sin fecha"}</small>
+          <br>
+          <small class="text-muted"><i class="bi bi-tag"></i> ${task.proyecto?.nombre || "Sin proyecto"}</small>
         </div>
       </div>
     </div>
@@ -64,8 +76,26 @@ function generateTaskCards(status) {
 }
 
 // === Modal de creación de Tarea ===
-function showCreateTaskModal() {
+async function showCreateTaskModal() {
   if (!window.Swal) return;
+
+// 1. Traer proyectos desde el backend
+  let proyectos = [];
+  try {
+    const token = localStorage.getItem("token");
+    const res = await fetch(API_BASE+"/Projects", {
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    proyectos = await res.json();
+  } catch (err) {
+    console.error("Error cargando proyectos:", err);
+    proyectos = [];
+  }
+
+  const proyectosOptions = proyectos.map(
+    p => `<option value="${p.id}">${p.nombre}</option>`
+  ).join("");
+// 2. Mostrar modal con formulario
   Swal.fire({
     title: 'Crear Nueva Tarea',
     html: `
@@ -93,12 +123,18 @@ function showCreateTaskModal() {
           </div>
         </div>
         <div class="mb-3">
-          <label class="form-label">Asignar a</label>
+          <label class="form-label">Asignar a (Usuario)</label>
           <select class="form-select" id="taskAssignee">
             <option value="1">Juan Pérez</option>
             <option value="2">Ana García</option>
             <option value="3">Carlos López</option>
             <option value="4">María Rodríguez</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Proyecto</label>
+          <select class="form-select" id="taskProject">
+            ${proyectosOptions || '<option value="">(No hay proyectos)</option>'}
           </select>
         </div>
       </div>
@@ -113,25 +149,52 @@ function showCreateTaskModal() {
       const priority = document.getElementById('taskPriority').value;
       const dueDate = document.getElementById('taskDueDate').value;
       const assignee = document.getElementById('taskAssignee').value;
+      const projectId = document.getElementById('taskProject').value;
       if (!title) {
         Swal.showValidationMessage('El título es requerido');
         return false;
       }
-      return { title, description, priority, dueDate, assignee };
+      return { title, description, priority, dueDate, assignee, projectId };
     }
   }).then((result) => {
     if (result.isConfirmed) createTask(result.value);
   });
 }
 
-function createTask(taskData) {
-  console.log('Creando tarea:', taskData);
-  Swal.fire({
-    icon: 'success',
-    title: '¡Tarea creada!',
-    text: `La tarea "${taskData.title}" ha sido creada exitosamente.`,
-    timer: 2000,
-    showConfirmButton: false
-  });
-  setTimeout(() => loadSection('dashboard'), 2000);
+/** Llama al backend para crear una nueva tarea */
+async function createTask(taskData) {
+  try {
+    const res = await fetch(`${API_BASE}/tasks`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify({
+        Nombre: taskData.title,
+        Descripcion: taskData.description,
+        Prioridad: taskData.priority === "low" ? 1 : taskData.priority === "medium" ? 2 : 3, // 🔄 conviértelo a int,
+        FechaVencimiento: taskData.dueDate,
+        AssigneeId: parseInt(taskData.assignee),
+        ProyectoId: parseInt(taskData.projectId),
+        Estado: "pending"
+      })
+    });
+
+    if (!res.ok) throw new Error("Error creando la tarea ");
+
+    Swal.fire({
+      icon: 'success',
+      title: '¡Tarea creada!',
+      text: `La tarea "${taskData.title}" ha sido creada exitosamente.`,
+      timer: 2000,
+      showConfirmButton: false
+    });
+
+    // Recargar tareas
+    initTasks();
+  } catch (err) {
+    console.error(err);
+    Swal.fire("Error", "No se pudo crear la tarea", "error");
+  }
 }

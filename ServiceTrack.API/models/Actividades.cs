@@ -13,6 +13,7 @@ namespace ServiceTrack.API.Models
         public DateTime FechaVencimiento { get; set; }
         public int Prioridad { get; set; } // 1: baja, 2: media, 3: alta
         public int ProyectoId { get; set; }
+        public int Tipo { get; set; }
         public Proyecto Proyecto { get; set; } = null!;
     }
 }

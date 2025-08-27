@@ -13,7 +13,9 @@ namespace ServiceTrack.API.Models
         public DateTime FechaVencimiento { get; set; }
         public int Prioridad { get; set; } // 1: baja, 2: media, 3: alta
         public int ProyectoId { get; set; }
-        public Proyecto Proyecto { get; set; } = null!;
+        public Proyecto? Proyecto { get; set; } = null;
+        public int AssigneeId { get; set; }
+        public Usuario? Assignee { get; set; }
     }
 }
 // This class represents a task in the ServiceTrack API, with properties for ID, name, description, status, creation date, due date, priority, and associated project.

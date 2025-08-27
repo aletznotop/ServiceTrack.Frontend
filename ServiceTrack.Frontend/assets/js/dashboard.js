@@ -14,7 +14,9 @@ function initDashboard() {
 /** Estadísticas desde API */
 function loadStatistics() {
   fetch(`${API_DASHBOARD}/statistics`, {
-    headers: { "Authorization": "Bearer " + localStorage.getItem("token") }
+    headers: { "Authorization": "Bearer " + localStorage.getItem("token") ,
+      "Content-Type": "application/json"
+    }
   })
     .then(r => r.json())
     .then(stats => {
@@ -23,7 +25,7 @@ function loadStatistics() {
       animateCounter('pending-tasks', stats.pendingTasks);
       animateCounter('overdue-tasks', stats.overdueTasks);
     })
-    .catch(err => console.error("Error estadísticas", err));
+    .catch(err => console.error("Error estadísticas mamalonas", err));
 }
 
 /** Actividades recientes */
@@ -61,20 +63,21 @@ function loadUpcomingTasks() {
         <div class="col-lg-4 col-md-6 mb-3">
           <div class="task-card p-3 h-100">
             <div class="d-flex">
-              <div class="task-priority priority-${task.priority} me-3"></div>
+              <div class="task-priority priority-${task.prioridad} me-3"></div>
               <div class="flex-grow-1">
-                <h6 class="mb-1">${task.title}</h6>
-                <p class="text-muted small mb-2">${task.project}</p>
+                <h6 class="mb-1">${task.nombre}</h6>
+                <p class="text-muted small mb-2">${task.proyecto}</p>
                 <div class="d-flex justify-content-between align-items-center">
-                  <span class="status-badge bg-light text-dark"><i class="bi bi-calendar"></i> ${formatDate(task.dueDate)}</span>
-                  <span class="status-badge bg-primary text-white">${getPriorityText(task.priority)}</span>
+                  <span class="status-badge bg-light text-dark"><i class="bi bi-calendar"></i> ${Utils.formatDate(task.fechaVencimiento)}</span>
+                  <span class="status-badge bg-primary text-white">${Utils.getPriorityText(task.prioridad)}</span>
                 </div>
-                <small class="text-muted mt-1 d-block"><i class="bi bi-person"></i> ${task.assignee}</small>
+                <small class="text-muted mt-1 d-block"><i class="bi bi-person"></i> ${task.assignee?.nombre || "Sin asignar"}</small>
               </div>
             </div>
           </div>
         </div>
       `).join('');
+      console.log(tasks);
     })
     .catch(err => console.error("Error próximas tareas", err));
 }
@@ -96,16 +99,6 @@ function animateCounter(elementId, targetValue) {
   }, 30);
 }
 
-/** Formato fecha */
-function formatDate(dateString) {
-  const date = new Date(dateString);
-  return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long' });
-}
-
-function getPriorityText(priority) {
-  const map = { high: "Alta", medium: "Media", low: "Baja" };
-  return map[priority] || priority;
-}
 
 /** Inicializa la gráfica del dashboard */
 function initializeChart() {

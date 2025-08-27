@@ -33,23 +33,23 @@ namespace ServiceTrack.API.Controllers
         }
 
         // === Actividades recientes ===
-        // [HttpGet("recent-activities")]
-        // public IActionResult GetRecentActivities()
-        // {
-        //     var activities = _context.Activities
-        //         .OrderByDescending(a => a.CreatedAt)
-        //         .Take(5)
-        //         .Select(a => new
-        //         {
-        //             text = a.Description,
-        //             time = a.CreatedAt,
-        //             icon = a.Type,
-        //             @class = a.CssClass
-        //         })
-        //         .ToList();
+        [HttpGet("recent-activities")]
+        public IActionResult GetRecentActivities()
+        {
+            var activities = _context.Actividades
+                .OrderByDescending(a => a.FechaCreacion)
+                .Take(5)
+                .Select(a => new
+                {
+                    text = a.Descripcion,
+                    time = a.FechaCreacion,
+                    icon = a.Tipo
+                    //@class = a.CssClass
+                })
+                .ToList();
 
-        //     return Ok(activities);
-        // }
+            return Ok(activities);
+        }
 
         // === Próximas tareas ===
         [HttpGet("upcoming-tasks")]
@@ -62,10 +62,10 @@ namespace ServiceTrack.API.Controllers
                 .Select(t => new
                 {
                     id = t.Id,
-                    title = t.Nombre,
-                    project = t.Proyecto.Nombre,
-                    priority = t.Prioridad,
-                    dueDate = t.FechaVencimiento
+                    nombre = t.Nombre,
+                    proyecto = t.Proyecto != null ? t.Proyecto.Nombre : "Sin proyecto",
+                    prioridad = t.Prioridad,
+                    fechaVencimiento = t.FechaVencimiento
                 })
                 .ToList();
 

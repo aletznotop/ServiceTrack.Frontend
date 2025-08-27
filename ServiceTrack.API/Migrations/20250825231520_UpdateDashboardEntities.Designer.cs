@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServiceTrack.API.Data;
 
@@ -11,9 +12,11 @@ using ServiceTrack.API.Data;
 namespace ServiceTrack.API.Migrations
 {
     [DbContext(typeof(ServiceTrackContext))]
-    partial class ServiceTrackContextModelSnapshot : ModelSnapshot
+    [Migration("20250825231520_UpdateDashboardEntities")]
+    partial class UpdateDashboardEntities
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,9 +154,6 @@ namespace ServiceTrack.API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AssigneeId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Descripcion")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -179,8 +179,6 @@ namespace ServiceTrack.API.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AssigneeId");
 
                     b.HasIndex("ProyectoId");
 
@@ -221,7 +219,7 @@ namespace ServiceTrack.API.Migrations
                     b.HasOne("ServiceTrack.API.Models.Proyecto", "Proyecto")
                         .WithMany()
                         .HasForeignKey("ProyectoId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Proyecto");
@@ -232,7 +230,7 @@ namespace ServiceTrack.API.Migrations
                     b.HasOne("ServiceTrack.API.Models.Proyecto", "Proyecto")
                         .WithMany()
                         .HasForeignKey("ProyectoId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Proyecto");
@@ -243,7 +241,7 @@ namespace ServiceTrack.API.Migrations
                     b.HasOne("ServiceTrack.API.Models.Usuario", "Usuario")
                         .WithMany()
                         .HasForeignKey("UsuarioId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Usuario");
@@ -251,19 +249,11 @@ namespace ServiceTrack.API.Migrations
 
             modelBuilder.Entity("ServiceTrack.API.Models.Tareas", b =>
                 {
-                    b.HasOne("ServiceTrack.API.Models.Usuario", "Assignee")
-                        .WithMany()
-                        .HasForeignKey("AssigneeId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("ServiceTrack.API.Models.Proyecto", "Proyecto")
                         .WithMany()
                         .HasForeignKey("ProyectoId")
-                        .OnDelete(DeleteBehavior.NoAction)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Assignee");
 
                     b.Navigation("Proyecto");
                 });
