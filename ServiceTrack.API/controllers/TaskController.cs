@@ -49,7 +49,7 @@ namespace ServiceTrack.API.Controllers
         public async Task<IActionResult> UpdateTask(int id, Tareas task)
         {
             if (id != task.Id) return BadRequest();
-
+Console.WriteLine(task.ProyectoId);         
             _context.Entry(task).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return NoContent();

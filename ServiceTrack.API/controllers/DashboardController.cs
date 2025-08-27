@@ -25,9 +25,9 @@ namespace ServiceTrack.API.Controllers
             var stats = new
             {
                 totalProjects = _context.Proyectos.Count(),
-                completedTasks = _context.Tareas.Count(t => t.Estado == "completada"),
-                pendingTasks = _context.Tareas.Count(t => t.Estado == "pendiente"),
-                overdueTasks = _context.Tareas.Count(t => t.FechaVencimiento < DateTime.Now && t.Estado != "completada")
+                completedTasks = _context.Tareas.Count(t => t.Estado == "completed"),
+                pendingTasks = _context.Tareas.Count(t => t.Estado == "pending"),
+                overdueTasks = _context.Tareas.Count(t => t.FechaVencimiento < DateTime.Now && t.Estado != "completed")
             };
             return Ok(stats);
         }

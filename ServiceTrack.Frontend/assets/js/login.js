@@ -21,8 +21,6 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
 
     // 🔑 Guardamos el token
     localStorage.setItem("token", data.token);
-    console.log(data);
-    debugger;
     localStorage.setItem("userEmail", email);
     localStorage.setItem("userNombre", data.user.nombre);
     localStorage.setItem("userEmail", data.user.email);

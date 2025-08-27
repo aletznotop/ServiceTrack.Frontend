@@ -9,8 +9,28 @@ function getPriorityText(priority) {
   return map[priority] || priority;
 }
 
+function mapPriorityToInt(priority) {
+  switch (priority) {
+    case "low": return 1;
+    case "medium": return 2;
+    case "high": return 3;
+    default: return 2;
+  }
+}
+
+function mapStatusToString(status) {
+  switch (status) {
+    case "pending": return "pendiente";
+    case "inProgress": return "en progreso";
+    case "completed": return "completada";
+    default: return "pendiente";
+  }
+}
+
 
 window.Utils = {
     formatDate,
-    getPriorityText
+    getPriorityText,
+    mapPriorityToInt,
+    mapStatusToString
 };

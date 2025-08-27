@@ -77,7 +77,6 @@ function loadUpcomingTasks() {
           </div>
         </div>
       `).join('');
-      console.log(tasks);
     })
     .catch(err => console.error("Error próximas tareas", err));
 }
