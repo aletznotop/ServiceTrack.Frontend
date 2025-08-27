@@ -27,7 +27,6 @@ function mapStatusToString(status) {
   }
 }
 
-
 window.Utils = {
     formatDate,
     getPriorityText,
