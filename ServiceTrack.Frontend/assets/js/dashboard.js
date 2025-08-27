@@ -25,7 +25,7 @@ function loadStatistics() {
       animateCounter('pending-tasks', stats.pendingTasks);
       animateCounter('overdue-tasks', stats.overdueTasks);
     })
-    .catch(err => console.error("Error estadísticas mamalonas", err));
+    .catch(err => console.error("Error estadísticas", err));
 }
 
 /** Actividades recientes */
@@ -100,17 +100,34 @@ function animateCounter(elementId, targetValue) {
 
 
 /** Inicializa la gráfica del dashboard */
-function initializeChart() {
+async function initializeChart() {
   const ctx = document.getElementById('progressChart');
   if (!ctx || typeof Chart === 'undefined') return;
+
+  try {
+    const res = await fetch(`${API_BASE}/tasks/report/monthly`, {
+      headers: {
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      }
+    });
+
+    if (!res.ok) throw new Error("Error cargando reporte");
+    const data = await res.json();
+  const labels = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago','Sep','Oct','Nov','Dic'];
+    const dataset = Array(12).fill(0); // inicializar 12 meses en 0
+
+    data.forEach(item => {
+      dataset[item.mes - 1] = item.total; // Mes empieza en 1, array en 0
+    });
+
 
   new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago'],
+      labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago','Sep','Oct','Nov','Dic'],
       datasets: [{
         label: 'Tareas Completadas',
-        data: [5, 10, 8, 15, 20, 25, 30, 35], // luego lo puedes reemplazar con datos reales
+        data: dataset, 
         borderColor: '#2563eb',
         backgroundColor: 'rgba(37, 99, 235, 0.1)',
         tension: 0.4,
@@ -127,4 +144,6 @@ function initializeChart() {
       }
     }
   });
-}
+}catch(err){
+  console.error("Error inicializando gráfica", err);
+}}

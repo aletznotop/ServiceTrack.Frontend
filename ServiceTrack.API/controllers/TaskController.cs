@@ -49,7 +49,7 @@ namespace ServiceTrack.API.Controllers
         public async Task<IActionResult> UpdateTask(int id, Tareas task)
         {
             if (id != task.Id) return BadRequest();
-Console.WriteLine(task.ProyectoId);         
+            Console.WriteLine(task.ProyectoId);
             _context.Entry(task).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             return NoContent();
@@ -64,6 +64,23 @@ Console.WriteLine(task.ProyectoId);
             _context.Tareas.Remove(task);
             await _context.SaveChangesAsync();
             return NoContent();
+        }
+
+        [HttpGet("report/monthly")]
+        public async Task<ActionResult<IEnumerable<TareasMesDto>>> GetMonthlyTaskReport()
+        {
+            var tareasPorMes = await _context.Tareas
+                .Where(t => t.Estado == "completed") // 👈 solo tareas completadas
+                .GroupBy(t => t.FechaCreacion.Month)
+                .Select(g => new TareasMesDto
+                {
+                    Mes = g.Key,
+            Total = g.Count()
+        })
+        .OrderBy(x => x.Mes)
+        .ToListAsync();
+
+    return Ok(tareasPorMes);
         }
     }
 
