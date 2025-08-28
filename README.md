@@ -57,8 +57,11 @@ Abrir index.html en tu navegador.
 Navegar entre las secciones usando el sidebar.
 
 📌 Roadmap
-* Mejorar Kanban con drag & drop real.
-* Conexión con API en .NET (Capa de Negocio).
-* Autenticación JWT + Google OAuth.
-* Exportar reportes (PDF, Excel).
-* Deploy con Docker + Nginx.
+* Mejorar Kanban con drag & drop real. [En progreso]
+* Conexión con API en .NET (Capa de Negocio). [Completado 70%]
+* Autenticación JWT + Google OAuth. [Listo JWT, Falta Google]
+* Exportar reportes (PDF, Excel). [En progreso]
+* Deploy con Docker + Nginx.[En platicas]
+* Proyectos [CRUD], Tareas [CRUD] [Completo]
+* Creación de otras opciones como Configuracion, perfil del usuario, ETC [En Progreso]
+* Cambiar de Gestion de Proyectos a Gestión de Facturacion [En Platicas]
