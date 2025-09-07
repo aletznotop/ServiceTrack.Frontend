@@ -29,11 +29,13 @@ namespace ServiceTrack.API.Controllers
         [HttpPost]
         public async Task<ActionResult<Tareas>> CreateTask(Tareas task)
         {
-            var proyecto = await _context.Proyectos.FindAsync(task.ProyectoId);
+            var proyecto = await _context.Proyectos
+                .Include(p => p.Tareas) // 👈 importante incluir las tareas
+                .FirstOrDefaultAsync(p => p.Id == task.ProyectoId);
+
             if (proyecto == null)
                 return BadRequest(new { message = "El proyecto no existe." });
 
-            // Verificar que el usuario asignado existe
             var usuario = await _context.Usuarios.FindAsync(task.AssigneeId);
             if (usuario == null)
                 return BadRequest(new { message = "El usuario asignado no existe." });
@@ -42,6 +44,10 @@ namespace ServiceTrack.API.Controllers
 
             _context.Tareas.Add(task);
             await _context.SaveChangesAsync();
+
+            // 🔹 Recalcular progreso
+            await UpdateProjectProgress(task.ProyectoId);
+
             return CreatedAtAction(nameof(GetTasks), new { id = task.Id }, task);
         }
 
@@ -49,9 +55,13 @@ namespace ServiceTrack.API.Controllers
         public async Task<IActionResult> UpdateTask(int id, Tareas task)
         {
             if (id != task.Id) return BadRequest();
-            Console.WriteLine(task.ProyectoId);
+
             _context.Entry(task).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+
+            // 🔹 Recalcular progreso
+            await UpdateProjectProgress(task.ProyectoId);
+
             return NoContent();
         }
 
@@ -61,8 +71,14 @@ namespace ServiceTrack.API.Controllers
             var task = await _context.Tareas.FindAsync(id);
             if (task == null) return NotFound();
 
+            int projectId = task.ProyectoId;
+
             _context.Tareas.Remove(task);
             await _context.SaveChangesAsync();
+
+            // 🔹 Recalcular progreso
+            await UpdateProjectProgress(projectId);
+
             return NoContent();
         }
 
@@ -70,18 +86,38 @@ namespace ServiceTrack.API.Controllers
         public async Task<ActionResult<IEnumerable<TareasMesDto>>> GetMonthlyTaskReport()
         {
             var tareasPorMes = await _context.Tareas
-                .Where(t => t.Estado == "completed") // 👈 solo tareas completadas
+                .Where(t => t.Estado == "completed") // 👈 ojo, tu modelo usa "completada" en español
                 .GroupBy(t => t.FechaCreacion.Month)
                 .Select(g => new TareasMesDto
                 {
                     Mes = g.Key,
-            Total = g.Count()
-        })
-        .OrderBy(x => x.Mes)
-        .ToListAsync();
+                    Total = g.Count()
+                })
+                .OrderBy(x => x.Mes)
+                .ToListAsync();
 
-    return Ok(tareasPorMes);
+            return Ok(tareasPorMes);
+        }
+
+        // =====================================================
+        // 🔹 MÉTODO PRIVADO PARA ACTUALIZAR PROGRESO DE PROYECTO
+        // =====================================================
+        private async Task UpdateProjectProgress(int projectId)
+        {
+            var project = await _context.Proyectos
+                .Include(p => p.Tareas)
+                .FirstOrDefaultAsync(p => p.Id == projectId);
+
+            if (project != null && project.Tareas.Any())
+            {
+                int total = project.Tareas.Count;
+                int completadas = project.Tareas.Count(t => t.Estado == "completed");
+
+                project.Progress = (int)Math.Round((double)completadas / total * 100);
+
+                _context.Proyectos.Update(project);
+                await _context.SaveChangesAsync();
+            }
         }
     }
-
 }

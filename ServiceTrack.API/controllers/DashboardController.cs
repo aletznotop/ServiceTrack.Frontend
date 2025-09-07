@@ -58,7 +58,7 @@ namespace ServiceTrack.API.Controllers
             var tasks = _context.Tareas
                 .Where(t => t.FechaVencimiento >= DateTime.Now)
                 .OrderBy(t => t.FechaVencimiento)
-                .Take(5)
+                .Take(10)
                 .Select(t => new
                 {
                     id = t.Id,

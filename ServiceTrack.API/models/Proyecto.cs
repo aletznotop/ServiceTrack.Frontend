@@ -1,8 +1,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
 
 namespace ServiceTrack.API.Models
 {
- [Table("PROYECTOS",Schema = "PROYECTOS")]
+    [Table("PROYECTOS", Schema = "PROYECTOS")]
     public class Proyecto
     {
         public int Id { get; set; }
@@ -21,5 +22,8 @@ namespace ServiceTrack.API.Models
         // Relación con Usuario
         public int UsuarioId { get; set; }
         public Usuario? Usuario { get; set; }
+        
+        [JsonIgnore]
+        public ICollection<Tareas> Tareas { get; set; } = new List<Tareas>();
     }
 }

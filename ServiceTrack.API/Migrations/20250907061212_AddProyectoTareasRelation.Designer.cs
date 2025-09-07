@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ServiceTrack.API.Data;
 
@@ -11,9 +12,11 @@ using ServiceTrack.API.Data;
 namespace ServiceTrack.API.Migrations
 {
     [DbContext(typeof(ServiceTrackContext))]
-    partial class ServiceTrackContextModelSnapshot : ModelSnapshot
+    [Migration("20250907061212_AddProyectoTareasRelation")]
+    partial class AddProyectoTareasRelation
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -178,11 +181,16 @@ namespace ServiceTrack.API.Migrations
                     b.Property<int>("ProyectoId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ProyectoId1")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("AssigneeId");
 
                     b.HasIndex("ProyectoId");
+
+                    b.HasIndex("ProyectoId1");
 
                     b.ToTable("TAREAS", "PROYECTOS");
                 });
@@ -258,10 +266,14 @@ namespace ServiceTrack.API.Migrations
                         .IsRequired();
 
                     b.HasOne("ServiceTrack.API.Models.Proyecto", "Proyecto")
-                        .WithMany("Tareas")
+                        .WithMany()
                         .HasForeignKey("ProyectoId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
+
+                    b.HasOne("ServiceTrack.API.Models.Proyecto", null)
+                        .WithMany("Tareas")
+                        .HasForeignKey("ProyectoId1");
 
                     b.Navigation("Assignee");
 

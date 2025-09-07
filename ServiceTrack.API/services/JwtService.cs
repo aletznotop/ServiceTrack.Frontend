@@ -18,7 +18,7 @@ namespace ServiceTrack.API.Services
         public string GenerateToken(int userId, string email, string role)
         {
             var jwtSettings = _config.GetSection("Jwt");
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Key"])) ?? throw new InvalidOperationException("JWT Key is not configured.");
             var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new[]

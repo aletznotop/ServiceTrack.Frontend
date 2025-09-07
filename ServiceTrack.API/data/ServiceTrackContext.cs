@@ -42,7 +42,7 @@ namespace ServiceTrack.API.Data
             // === Relación Tarea -> Proyecto ===
             modelBuilder.Entity<Tareas>()
                 .HasOne(t => t.Proyecto)
-                .WithMany()
+                .WithMany(p => p.Tareas)
                 .HasForeignKey(t => t.ProyectoId)
                 .OnDelete(DeleteBehavior.NoAction);
 
