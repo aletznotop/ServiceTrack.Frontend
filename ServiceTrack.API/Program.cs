@@ -6,30 +6,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// ====================== 🔐 CONFIGURACIÓN JWT ======================
 var jwtSettings = builder.Configuration.GetSection("Jwt");
 var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-builder.Services.AddDbContext<ServiceTrackContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            policy.WithOrigins(
-                "http://127.0.0.1:5500",  // VSCode Live Server
-                "http://localhost:5500",  // Otra variante Live Server
-                "https://localhost:7037",  // API misma (útil si hospedas frontend ahí)
-                "http://localhost"        // fallback general
-            )
-            .AllowAnyHeader()
-            .AllowAnyMethod();
-        });
-});
 
 builder.Services.AddAuthentication(options =>
 {
@@ -38,7 +18,7 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.RequireHttpsMetadata = false; // solo dev
+    options.RequireHttpsMetadata = false; // ✅ en dev
     options.SaveToken = true;
     options.TokenValidationParameters = new TokenValidationParameters
     {
@@ -51,17 +31,41 @@ builder.Services.AddAuthentication(options =>
         IssuerSigningKey = new SymmetricSecurityKey(key)
     };
 });
-// Swagger
+
+// ====================== 🧩 BASE DE DATOS ======================
+builder.Services.AddDbContext<ServiceTrackContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// ====================== 🌐 CONFIGURACIÓN CORS ======================
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend", policy =>
+    {
+        policy
+            .WithOrigins(
+                "http://127.0.0.1:5500",   // VSCode Live Server
+                "http://localhost:5500",   // Variante Live Server
+                "http://127.0.0.1:81",     // API HTTP local
+                "https://127.0.0.1:443",   // API HTTPS local
+                "http://localhost"         // fallback general
+            )
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+// ====================== 🧰 SERVICIOS ======================
+builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<JwtService>();
-// Controllers
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// ====================== 🚀 PIPELINE DE LA APLICACIÓN ======================
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -69,8 +73,20 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// ⚠️ MUY IMPORTANTE: CORS antes de HTTPS y Auth
+app.UseCors("AllowFrontend");
 
+// En producción usamos HTTPS, en desarrollo no
+if (!app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
+
+// 🔑 Autenticación y autorización
+app.UseAuthentication();
+app.UseAuthorization();
+
+// ====================== 🌦️ ENDPOINT DE EJEMPLO ======================
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
@@ -78,9 +94,8 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
+    var forecast = Enumerable.Range(1, 5).Select(index =>
+        new WeatherForecast(
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
             Random.Shared.Next(-20, 55),
             summaries[Random.Shared.Next(summaries.Length)]
@@ -89,11 +104,11 @@ app.MapGet("/weatherforecast", () =>
     return forecast;
 })
 .WithName("GetWeatherForecast");
-app.UseHttpsRedirection();
-app.UseCors("AllowFrontend");
-app.UseAuthentication();
-app.UseAuthorization();
+
+// ====================== 🧭 CONTROLADORES ======================
 app.MapControllers();
+
+// ====================== 🟢 ARRANQUE ======================
 app.Run();
 
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)

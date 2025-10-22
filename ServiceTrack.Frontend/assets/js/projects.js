@@ -1,6 +1,7 @@
+const API_BASE = Utils.API_BASE_URL;
 async function fetchProjects() {
   const token = localStorage.getItem("token");
-  const response = await fetch("https://localhost:7037/api/projects", {
+  const response = await fetch(API_BASE+"/projects", {
     headers: { 
       "Authorization": "Bearer " + token 
     }

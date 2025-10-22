@@ -1,4 +1,6 @@
 /** Formato fecha */
+const API_BASE_URL = `${window.location.protocol}//${window.location.hostname}:81/api`;
+
 function formatDate(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString('es-ES', { day: '2-digit', month: 'long' });
@@ -31,5 +33,6 @@ window.Utils = {
     formatDate,
     getPriorityText,
     mapPriorityToInt,
-    mapStatusToString
+    mapStatusToString,
+    API_BASE_URL
 };

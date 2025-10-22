@@ -1,4 +1,4 @@
-const API_URL = "https://localhost:7037/api/auth/login"; // ⚡ cambia si usas otro puerto
+const API_URL = `${window.location.protocol}//${window.location.hostname}:81/api` + "/auth/login"; // ⚡ cambia si usas otro puerto
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();

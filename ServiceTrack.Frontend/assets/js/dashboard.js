@@ -1,4 +1,4 @@
-const API_DASHBOARD = "https://localhost:7037/api/dashboard";
+const API_DASHBOARD = Utils.API_BASE_URL + "/dashboard";
 
 function initDashboard() {
   const nombre = localStorage.getItem("userNombre") || "Usuario";
@@ -107,7 +107,7 @@ async function initializeChart() {
   if (!ctx || typeof Chart === 'undefined') return;
 
   try {
-    const res = await fetch(`${API_BASE}/tasks/report/monthly`, {
+    const res = await fetch(`${API_BASE_URL}/tasks/report/monthly`, {
       headers: {
         "Authorization": `Bearer ${localStorage.getItem("token")}`
       }

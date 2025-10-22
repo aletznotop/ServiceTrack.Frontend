@@ -1,7 +1,5 @@
 // === TAREAS ===
 
-const API_BASE = "https://localhost:7037/api";
-
 async function initTasks() {
   const tasks = await fetchTasks();
   // Contadores
