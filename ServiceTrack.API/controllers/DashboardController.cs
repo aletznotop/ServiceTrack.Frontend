@@ -58,7 +58,7 @@ namespace ServiceTrack.API.Controllers
         public IActionResult GetUpcomingTasks()
         {
             var tasks = _context.Tareas
-                .Where(t => t.FechaVencimiento >= DateTime.Now)
+                .Where(t => t.FechaVencimiento >= DateTime.Now && t.Estado != "completed")
                 .OrderBy(t => t.FechaVencimiento)
                 .Take(10)
                 .Select(t => new
