@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5176/api/auth/login"; // ⚡ cambia si usas otro puerto
+const API_URL = "https://localhost:7037/api/auth/login"; // ⚡ cambia si usas otro puerto
 
 document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
@@ -25,7 +25,8 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     localStorage.setItem("userNombre", data.user.nombre);
     localStorage.setItem("userEmail", data.user.email);
     localStorage.setItem("userRol", data.user.rol);
-
+    localStorage.setItem("usrId", data.user.id);
+    console.log();
     // Redirigir al dashboard
     window.location.href = "index.html";
 

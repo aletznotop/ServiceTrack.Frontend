@@ -1,6 +1,6 @@
 // === TAREAS ===
 
-const API_BASE = "http://localhost:5176/api";
+const API_BASE = "https://localhost:7037/api";
 
 async function initTasks() {
   const tasks = await fetchTasks();

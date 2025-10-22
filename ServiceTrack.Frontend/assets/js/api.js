@@ -29,7 +29,7 @@ class TaskFlowAPI {
   }
 }
 async function fetchProjects() {
-    const response = await fetch("http://localhost:5176/api/projectes");
+    const response = await fetch("https://localhost:7037/api/projectes");
     if (!response.ok) throw new Error("Error al obtener proyectos");
     return await response.json();
 }

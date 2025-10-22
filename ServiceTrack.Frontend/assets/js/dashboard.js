@@ -1,4 +1,4 @@
-const API_DASHBOARD = "http://localhost:5176/api/dashboard";
+const API_DASHBOARD = "https://localhost:7037/api/dashboard";
 
 function initDashboard() {
   const nombre = localStorage.getItem("userNombre") || "Usuario";
@@ -24,6 +24,8 @@ function loadStatistics() {
       animateCounter('completed-tasks', stats.completedTasks);
       animateCounter('pending-tasks', stats.pendingTasks);
       animateCounter('overdue-tasks', stats.overdueTasks);
+      animateCounter('revisanding-tasks', stats.underReviewTasks);
+      animateCounter('inProgress-tasks', stats.inProgressTasks);
     })
     .catch(err => console.error("Error estadísticas", err));
 }

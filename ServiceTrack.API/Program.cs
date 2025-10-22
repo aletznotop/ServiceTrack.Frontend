@@ -23,7 +23,7 @@ builder.Services.AddCors(options =>
             policy.WithOrigins(
                 "http://127.0.0.1:5500",  // VSCode Live Server
                 "http://localhost:5500",  // Otra variante Live Server
-                "http://localhost:5176",  // API misma (útil si hospedas frontend ahí)
+                "https://localhost:7037",  // API misma (útil si hospedas frontend ahí)
                 "http://localhost"        // fallback general
             )
             .AllowAnyHeader()

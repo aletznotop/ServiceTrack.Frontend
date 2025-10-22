@@ -1,6 +1,6 @@
 async function fetchProjects() {
   const token = localStorage.getItem("token");
-  const response = await fetch("http://localhost:5176/api/projects", {
+  const response = await fetch("https://localhost:7037/api/projects", {
     headers: { 
       "Authorization": "Bearer " + token 
     }
@@ -164,7 +164,7 @@ function showCreateProjectModal() {
 async function createProject(projectData) {
   try {
     const token = localStorage.getItem("token");
-
+    const userId = localStorage.getItem("usrId");
     const res = await fetch(`${API_BASE}/projects`, {
       method: "POST",
       headers: {
@@ -181,7 +181,7 @@ async function createProject(projectData) {
         progress: 0,
         teamSize: projectData.teamSize,
         manager: projectData.manager,
-        usuarioId: 1 // ⚡ Aquí pon el id del usuario loggeado
+        usuarioId: userId // ⚡ Aquí pon el id del usuario loggeado
       })
     });
 

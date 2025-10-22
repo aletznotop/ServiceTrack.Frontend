@@ -47,7 +47,6 @@ namespace ServiceTrack.API.Data
                 .OnDelete(DeleteBehavior.NoAction);
 
             // === Relación Tarea -> Usuario (Assignee) ===
-            // 👇 Aquí es donde quitamos Cascade para evitar múltiples rutas de borrado
             modelBuilder.Entity<Tareas>()
                 .HasOne(t => t.Assignee)
                 .WithMany()
