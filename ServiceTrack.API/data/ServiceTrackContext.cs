@@ -1,3 +1,4 @@
+using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using ServiceTrack.API.Models;
 
@@ -12,6 +13,9 @@ namespace ServiceTrack.API.Data
         public DbSet<Actividades> Actividades { get; set; }
         public DbSet<Tareas> Tareas { get; set; }
         public DbSet<Equipos> Equipos { get; set; }
+        public DbSet<Tickets> Tickets { get; set; }
+
+
         // Luego añadimos Tareas y Equipos
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

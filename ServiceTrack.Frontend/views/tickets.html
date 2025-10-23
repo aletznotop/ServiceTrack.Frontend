@@ -1,0 +1,33 @@
+<div class="row mb-4">
+  <div class="col-12 d-flex justify-content-between align-items-center">
+    <h2>Gestión de Tickets</h2>
+    <button class="btn btn-primary" onclick="showCreateTicketModal()"><i class="bi bi-plus"></i> Nuevo Ticket</button>
+  </div>
+</div>
+
+<div class="row">
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="stat-card">
+      <h6 class="text-muted mb-3"><i class="bi bi-clock text-warning"></i> Sin Asignar (<span id="pending-count">0</span>)</h6>
+      <div class="kanban-column" id="pending-tickets-column"></div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="stat-card">
+      <h6 class="text-muted mb-3"><i class="bi bi-play text-info"></i> Asignados (<span id="inprogress-count">0</span>)</h6>
+      <div class="kanban-column" id="inprogress-tickets-column"></div>
+    </div>
+  </div>
+
+  <div class="col-lg-3 col-md-6 mb-4">
+    <div class="stat-card">
+      <h6 class="text-muted mb-3"><i class="bi bi-check-circle text-success"></i> Completados (<span id="review-count">0</span>)</h6>
+      <div class="kanban-column" id="completed-tickets-column"></div>
+    </div>
+  </div>
+</div>
+
+ <script>
+  if (typeof initTickets === 'function') initTickets();
+</script>

@@ -49,6 +49,9 @@ function loadSection(section) {
       if (section === 'projects'  && typeof initProjects  === 'function') initProjects();
       if (section === 'tasks'     && typeof initTasks     === 'function') initTasks();
       if (section === 'team'      && typeof initTeam      === 'function') initTeam();
+      if (section === 'reports'   && typeof initReports   === 'function') initReports();
+      if (section === 'settings'  && typeof initSettings  === 'function') initSettings();
+      if (section === 'tickets'   && typeof initTickets   === 'function') initTickets();
     })
     .catch(err => {
       console.error('Error cargando vista:', err);
