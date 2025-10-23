@@ -30,7 +30,7 @@ namespace ServiceTrack.API.Controllers
         public async Task<ActionResult<Tickets>> CreateTicket(Tickets ticket)
         {
             var proyecto = await _context.Proyectos
-                .Include(p => p.Tareas) // 👈 importante incluir las tareas
+                .Include(p => p.Tareas) 
                 .FirstOrDefaultAsync(p => p.Id == ticket.ProyectoId);
 
             if (proyecto == null)
